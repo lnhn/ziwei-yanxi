@@ -1,4 +1,5 @@
 node_modules/
+node_modules
 .next/
 .vercel/
 .env*
@@ -6,4 +7,26 @@ node_modules/
 dist/
 *.tsbuildinfo
 .DS_Store
-node_modules
+
+# 静态导出与构建日志
+out/
+build*.log
+start*.log
+start*.err.log
+tmp_book2/
+
+# Tauri / Rust 构建产物（target 目录动辄数 GB）
+src-tauri/target/
+
+# 本地一次性调试脚本与临时输出
+dbg*.py
+probe*.py
+dump_pages.py
+render_book2.py
+win.txt
+tsc.log
+*.err.log
+
+# 影印本逐页扫描图（225 页约 100 MB，属派生产物）
+# 原始 PDF 保留在 public/books/ 下，需要时用 scripts/render-mingban.py 重新渲染
+public/books/mingban/
