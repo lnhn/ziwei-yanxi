@@ -1,0 +1,32 @@
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 29%);
+  margin: 32px auto 0;
+  overflow: hidden;
+  border: 1px solid var(--zw-line);
+  border-radius: 20px;
+  background: var(--zw-card);
+}
+.form { min-width: 0; padding: clamp(24px, 4vw, 48px); }
+.form h2 { font-size: 23px; line-height: 1.35; margin: 0 0 26px; color: var(--zw-ink); }
+.form > div { border: 0 !important; padding: 0 !important; }
+.form > div > div:first-child { display: none !important; }
+.art {
+  margin: 0;
+  padding: clamp(22px, 3vw, 36px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  background: #262725;
+  color: #eee6d4;
+}
+.art img { display: block; width: 100%; height: auto; border-radius: 5px; }
+.art figcaption { display: grid; gap: 4px; }
+.art a { color: inherit; text-underline-offset: 4px; font-size: 16px; }
+.art span { font-size: 12px; color: #d0c6b1; }
+@media (max-width: 1050px) {
+  .card { grid-template-columns: minmax(0, 1fr); }
+  .art { flex-direction: row; align-items: center; justify-content: flex-start; padding: 20px 24px; }
+  .art img { width: min(34%, 150px); }
+}

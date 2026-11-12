@@ -49,6 +49,7 @@
 | 八 | [维护节奏与贡献](#八维护节奏与贡献) | 同步节奏、issue / PR 口径 |
 | 九 | [协议](#九协议) | 代码 MIT / 数据 CC BY 4.0 / 古籍公版 / 倪师原话非商用 |
 | 十 | [关于与联系](#十关于与联系) | 项目理念、技术栈、联系方式 |
+| 十一 | [致谢](#十一致谢站在两个排盘库的肩上) | 排盘与历法都建在 iztro、lunar-javascript 之上 |
 
 ---
 
@@ -71,6 +72,8 @@
 **3. 排盘引擎同步**（[PR #39](https://github.com/Renhuai123/ziwei-doushu/pull/39)）—— `dst-cn.ts` 新增 `chinaDSTSpan(year)`，查某年中国夏令时起止；`cities.ts` 补全省直辖县级单位与新疆兵团各市的经度（神农架、海南各市县、阿拉尔等），出生地选这些城市时真太阳时校正可用。
 
 **4. 许可** —— [`DATASET-LICENSE`](./DATASET-LICENSE) 适用范围加上 v4.0；写明解读里引用的倪师原话不在数据授权范围内，与第五章倪师原话的 CC BY-NC-SA 4.0 一致。v3.0 样本数据集及其条款不变。
+
+> **2026-11-12 补充**：把 Demo 界面收成一套能久坐的「研习台」——公共层只留一份（字号 / 字体 / 行高 / 圆角台阶 + 公用组件 + 六套皮肤变量），逐页统一页头、返回路径与主操作；顺带修掉一个横跨全站的问题：实心按钮此前是「navy 底 + 浅字」，而暗色皮肤里的 navy 其实是浅紫浅青，字读不出来，现已统一成「墨底纸字」。另把六套皮肤的辅助文字色按 WCAG 重算到 ≥4.5:1。桌面版（Tauri 2 + NSIS）已同步打包。详见[六·1](#61-研习版界面2026-11-12)。
 
 > **2026-11-08 补充**：新开公开仓 **[nishi-ziwei-video-reading](https://github.com/Renhuai123/nishi-ziwei-video-reading)**——用多家大模型把倪师《天纪》紫微 17 集共 160 万帧逐帧精读一遍，方案、脚本、考试成绩和踩过的坑全过程公开，边做边更新，近期动态看那里。
 
@@ -380,6 +383,39 @@ npm test            # 排盘引擎回归（768 盘 × 紫微铁律、夏令时�
 
 **Demo 里没有的**：线上重做过的交互界面、AI 流式解读、合盘图谱、分享卡片，以及**断语内容本身**（`db-analysis.ts` 是占位实现）。也就是说，Demo 画得出盘，但给不出线上那套解读。
 
+### 6.1 研习版界面（2026-11-12）
+
+本轮把 `app/` 与 `components/` 的 Demo 整理成一套能坐下读两小时的「研习台」，并且打了 Tauri 2 桌面版：
+
+| 区域 | 路由 | 一句话 |
+|------|------|--------|
+| 研习首页 | `/study` | 起新盘 / 继续上次、今日一星、手工推演七步进度、最近的盘 |
+| 排盘与详情 | `/chart` | 出生资料收成一行摘要，左盘右详情，选中宫位更新右栏 |
+| 手工推演 | `/study/practice` | 七步教程 + 逐步核对，每步回链到对应知识条目 |
+| 星曜知识 | `/knowledge`、`/knowledge/[star]/[topic]`、`/knowledge/palace/[name]` | 按星曜 / 按宫位两条入口，先白话后详解 |
+| 古籍 | `/library`、`/library/[book]/[chapter]` | 书架统一 4:3 封面 + 阅读进度，正文 17px 宋体、行宽受控 |
+| 讲义与命例 | `/lectures`、`/cases` | 倪师讲义长文版式、命例缺项如实标注 |
+| 记录 | `/history`、`/study/notes` | 解盘历史与本地手记，导出 JSON / CSV |
+
+界面上的两条硬规矩：
+
+- **公共层只有一份**。`components/study/type.ts` 定义字号 / 字体 / 行高 / 圆角台阶，`components/study/ui.tsx` 提供 `PageHead / Section / Card / ListRow / Empty / Banner / Btn / Chip / Field / Select / FactRow`，`app/globals.css` 承载六套皮肤（纸宣 / 绢沙 / 玄墨 / 石青 / 绛紫 / 松烟）与统一交互层。页面不各写一套颜色和字号。
+- **高密度工作区不重排**。`@media (min-width:768px)` 下壳层最小宽度 1040px、盘面工作区 1176px，窗口更窄时由工作区自身横向滚动，四列宫格保持原比例。
+
+几处实现细节，给要改这套界面的人：
+
+| 位置 | 说明 |
+|------|------|
+| 字号与行高 | `T.{hero34, display27, h122, h2 19, h3 16, bodyLg16, body15, nav14, sub13, meta12.5, micro12, serif17}`；正文行高 1.8、古籍正文 1.85、讲义 2.0 |
+| 字体分工 | 宋体只给标题、主星、宫名、古籍引文；表单 / 导航 / 按钮 / 长白话走无衬线；日期、时辰、大限区间用等宽数字 |
+| 主题变量 | 皮肤挂在 `html[data-skin]`，本地偏好存 `zw.skin.v1`；辅助文字色（ink3）在六套皮肤里都按 ≥4.5:1 校过 |
+| 本地存储 | 解盘历史 `zw.readings.v1`、上次生辰 `zw.lastBirth.v1`、手记 `zw.notes.v1`、提示词 `zw.prompts.v1`、阅读进度 `zw.bookProgress.v1`（`lib/study/book-progress.ts`）、排盘口径 `ziwei-school-config-v1` |
+| 设置 | 侧栏「设置」就地弹窗，与 `/study/prompts` 共用同一个 `SettingsPanel`；「排盘规则」分栏里闰月口径改完即时写入配置，重新起盘生效，其余九项按 `SCHOOL_DEFAULT_CONFIG` 只读展示并注明影响哪类盘 |
+
+桌面版：`src-tauri/` 是 Tauri 2 配置，静态导出后由 NSIS 打成 `紫微研习_0.1.0_x64-setup.exe`，静默安装到本机即可离线运行（不需要 WebView2 之外任何运行时）。打包用 `scripts/build-desktop.ps1`（`NEXT_OUTPUT=export` → `npx tauri build` → 取 `bundle/nsis/*.exe`）。
+
+> **影印本扫描页不入库。**《紫微斗数全书》明版影印的 225 张逐页图片约 100 MB，属派生产物：原始 PDF 在 `public/books/`，需要影印阅读视图时用 `scripts/render-mingban.py` 重新渲染到 `public/books/mingban/`（该目录已在 `.gitignore` 里）。文字版原文、白话层都在 `lib/classics/` 里，不依赖扫描图。
+
 ---
 
 ## 七、开源边界：什么不在里面
@@ -429,7 +465,7 @@ npm test            # 排盘引擎回归（768 盘 × 紫微铁律、夏令时�
 - **框架**：Next.js 16（App Router）
 - **语言**：TypeScript
 - **样式**：Tailwind CSS + CSS Variables 设计系统
-- **排盘**：基于 [iztro](https://github.com/SylarLong/iztro) + lunar-javascript
+- **排盘**：基于 [iztro](https://github.com/SylarLong/iztro) + [lunar-javascript](https://github.com/6tail/lunar-javascript)（见[十一、致谢](#十一致谢站在两个排盘库的肩上)）
 - **动画**：Framer Motion
 
 ### 联系
@@ -437,3 +473,42 @@ npm test            # 排盘引擎回归（768 盘 × 紫微铁律、夏令时�
 - 线上平台：[ouranic.cn](https://ouranic.cn/?from=gh-readme)（已完成 ICP 备案：京ICP备2026069066号-1）
 - 提问题、提修复：见 [CONTRIBUTING.md](./CONTRIBUTING.md)；使用交流请到 [讨论区](https://github.com/Renhuai123/ziwei-doushu/discussions)
 - 💕 发财的小手点一下：小红书 / 抖音 / 闲鱼 / X 关注 **王多鱼AI**，第一时间看上线 + 解锁更多紫微干货～
+
+---
+
+## 十一、致谢：站在两个排盘库的肩上
+
+这个仓库的算法层看着有一千多行，但真正把「一张盘从生日变成十二宫」这件事做扎实的，是两个开源库。没有它们，本项目要么卡在历法换算的边界上，要么得从零重写安星规则——那都不是一个人能长期维护的事。
+
+### [iztro](https://github.com/SylarLong/iztro) · `MIT`
+
+作者 [SylarLong](https://github.com/SylarLong)。中文圈用得最广的紫微斗数排盘库之一，TypeScript 原生、零依赖、浏览器与 Node 通吃。
+
+本项目用它的部分：
+
+- 命宫 / 身宫定位、五行局、十四主星与辅星安星、大限流年流转的骨架（`lib/ziwei/algorithm.ts` 在它之上做了流派口径包装）
+- 星曜亮度的基础判法（本项目再叠了 7 档显示与流派切换，见 `school-data.ts`）
+- `node_modules/iztro/lib/star/location.ts` 的 `getStartIndex`、`tianfuIndex = 12 - ziweiIndex` 这类索引约定，是我核对安星结果时的对照基准
+
+值得一提的是它的测试覆盖：安星边界、时辰索引这些容易踩坑的地方，它写得很认真，帮我避免了几次「自以为是 bug、其实是自己算错」的绕路。
+
+### [lunar-javascript](https://github.com/6tail/lunar-javascript) · `MIT`
+
+作者 [6tail](https://github.com/6tail)，同一位作者的 Java / Python / PHP / Go 版同源，六十年历法数据一套口径。
+
+本项目用它的部分：
+
+- 公历 ↔ 农历互转、闰月判定与月首边界（`lib/ziwei/lunar-solar.ts` 在这里做闰月四种口径的 clamp）
+- 干支、节气时刻——真太阳时与「立春换年」的判定都依赖它给出的节气时间
+- 跨 1950–2026 的批量排盘（数据集那 67.5 万张盘）能跑得住，靠的是它换算稳定、没有隐藏状态
+
+### 也一并致谢
+
+- [Next.js](https://github.com/vercel/next.js)、[React](https://github.com/facebook/react)、[Tailwind CSS](https://github.com/tailwindlabs/tailwindcss)：界面与静态导出
+- [Tauri](https://github.com/tauri-apps/tauri)：把同一套静态产物装进桌面
+- [倪海厦《天纪》语料](https://github.com/Renhuai123/nihai-tianji-corpus)：讲义与命例的来源
+
+这一轮做界面时，它们帮的忙比平时更具体：闰月四种口径的 clamp 全部落在 `lunar-solar.ts`，也就是 lunar-javascript 的闰月判定上；「排盘规则」分栏里那九项只读参数的解释文字，是拿 iztro 的安星索引（`getStartIndex`、`tianfuIndex = 12 - ziweiIndex`）逐条核对写的。它们不只是运行时的依赖，也是这个项目对外解释口径时的依据。
+
+如果这两个库对你有用，请去它们的仓库点个 Star，或者提一个 issue——开源维护者最缺的从来不是代码，是有人真的在用。
+

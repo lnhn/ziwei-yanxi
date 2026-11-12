@@ -26,6 +26,18 @@ export interface Chapter {
   paragraphs: Paragraph[];
 }
 
+/** 影印本信息：扫描件没有文字层，只能按页翻阅，不做全文检索 */
+export interface ScanInfo {
+  /** public 下的 PDF 路径（如 /books/xxx.pdf） */
+  pdf: string;
+  /** 总页数 */
+  pageCount: number;
+  /** 版式说明 */
+  note: string;
+  /** 目次摘录（篇名 + 原书页码） */
+  toc: { title: string; page: string }[];
+}
+
 export interface Book {
   /** 书名 */
   title: string;
@@ -40,6 +52,8 @@ export interface Book {
   /** 总字数（粗略）*/
   wordCount: number;
   chapters: Chapter[];
+  /** 影印本（无文字层时用它，chapters 为空） */
+  scan?: ScanInfo;
 }
 
 export interface SearchHit {

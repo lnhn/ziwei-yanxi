@@ -9,13 +9,40 @@ import type { Book, Paragraph, SearchHit } from './types';
 import { guSuiFu } from './data/gusuifu';
 import { ziWeiQuanJi } from './data/quanji';
 import { ziWeiQuanShu } from './data/quanshu';
+import { ziWeiQuanShuMingBan } from './data/mingban';
+import { ziWeiQuanShuText } from './data/quanshu-text';
+import { CLASSICS_TRANSLATIONS } from './data/translations';
+
+/**
+ * 把今译挂到段落上。
+ * 今译单独存在 translations.ts，不写进各书数据，避免被当成原书注文。
+ */
+function withTranslations(book: Book): Book {
+  if (!book.chapters.length) return book;
+  return {
+    ...book,
+    chapters: book.chapters.map((c) => ({
+      ...c,
+      paragraphs: c.paragraphs.map((p) =>
+        p.translation || !CLASSICS_TRANSLATIONS[p.id]
+          ? p
+          : { ...p, translation: CLASSICS_TRANSLATIONS[p.id] },
+      ),
+    })),
+  };
+}
 
 /** 所有已收录古籍 */
 export const ALL_BOOKS: Book[] = [
   guSuiFu,
   ziWeiQuanJi,
   ziWeiQuanShu,
-];
+  ziWeiQuanShuText,
+  ziWeiQuanShuMingBan,
+].map(withTranslations);
+
+/** 可全文检索的书（影印本没有文字层，排除在外） */
+export const TEXT_BOOKS: Book[] = ALL_BOOKS.filter((b) => !b.scan);
 
 /** 总段落数（用于首页统计） */
 export const TOTAL_PARAGRAPHS = ALL_BOOKS.reduce(
@@ -62,7 +89,7 @@ export function searchClassics(query: string, limit = 30): SearchHit[] {
   if (q.length < 1) return [];
 
   const hits: SearchHit[] = [];
-  for (const book of ALL_BOOKS) {
+  for (const book of TEXT_BOOKS) {
     for (const chapter of book.chapters) {
       for (const p of chapter.paragraphs) {
         const idx = p.text.indexOf(q);

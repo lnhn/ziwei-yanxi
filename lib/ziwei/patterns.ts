@@ -15,7 +15,8 @@
  *  - 倪师《天纪》紫微斗数讲义
  */
 
-import 'server-only';
+// 说明：本模块原本标了 `server-only`，2026-11 起解盘页（/study/interpret）要在客户端
+// 直接识别格局并取判据，故改为纯数据模块 —— 全部函数无副作用、不读 env、不碰网络。
 import type { ZiweiChart, Palace, Star, SiHua } from './types';
 import { detectDingGui } from './patterns-dinggui';
 import { detectDingFu } from './patterns-dingfu';

@@ -8,6 +8,8 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { TRACK } from '@/components/study/type';
+import { PAPER_COLORS as C, mix } from '@/components/study/paper';
 
 export default function LibrarySearch() {
   const [q, setQ] = useState('');
@@ -28,9 +30,9 @@ export default function LibrarySearch() {
       gap: '8px',
       padding: '6px',
       background: 'var(--bg-card)',
-      border: '1px solid rgba(184,146,42,0.3)',
+      border: `1px solid ${mix(C.gold, 30)}`,
       borderRadius: '12px',
-      boxShadow: '0 4px 16px rgba(184,146,42,0.08)',
+      boxShadow: `0 4px 16px ${mix(C.gold, 8)}`,
     }}>
       <input
         value={q}
@@ -54,11 +56,11 @@ export default function LibrarySearch() {
           padding: '10px 22px',
           borderRadius: '8px',
           border: 'none',
-          background: 'linear-gradient(135deg, #d4a948 0%, #b8922a 100%)',
+          background: 'linear-gradient(135deg, ${C.gold} 0%, ${mix(C.gold, 76)} 100%)',
           color: 'white',
           fontSize: '13px',
           fontWeight: 600,
-          letterSpacing: '0.15em',
+          letterSpacing: TRACK.label,
           cursor: q.trim() ? 'pointer' : 'not-allowed',
           opacity: q.trim() ? 1 : 0.5,
         }}

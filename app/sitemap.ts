@@ -10,7 +10,11 @@
 import type { MetadataRoute } from 'next';
 import { ALL_BOOKS } from '@/lib/classics';
 import { getAllKnowledgeRoutes } from '@/lib/seo/knowledge';
+import { getKbRoutes } from '@/lib/ziwei/star-kb';
 import { SITE_URL } from '@/lib/site';
+
+// 桌面版要静态导出，sitemap 也是路由，必须显式声明为静态
+export const dynamic = 'force-static';
 
 const BASE_URL = SITE_URL;
 
@@ -45,7 +49,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
   });
 
   // 知识库 14×13
-  const knowledgePages: MetadataRoute.Sitemap = getAllKnowledgeRoutes().map(({ slug, topic }) => ({
+  const seen = new Set<string>();
+  const knowledgePages: MetadataRoute.Sitemap = [
+    ...getAllKnowledgeRoutes(),
+    ...getKbRoutes().map(({ slug, topic }) => ({ slug, topic })),
+  ].filter(({ slug, topic }) => {
+    const key = `${slug}/${topic}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).map(({ slug, topic }) => ({
     url: `${BASE_URL}/knowledge/${slug}/${topic}`,
     priority: 0.7,
     changeFrequency: 'monthly',

@@ -434,3 +434,407 @@ body {
    select 本身是半透明底 + 浅色字，Windows 上原生下拉列表是白底，浅灰字配白底看不清（#14） */
 [data-theme="dark"] select { color-scheme: dark; }
 [data-theme="dark"] select option { background-color: var(--bg-2); color: var(--tx-1); }
+
+/* ─── 设置弹窗动画（研习区） ───────────────────────────────── */
+@keyframes zwFadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes zwRiseIn { from { opacity: 0; transform: translateY(10px) scale(.995) } to { opacity: 1; transform: none } }
+
+/* 星曜卡片悬停：轻微抬升 + 暖灰阴影，不用蓝色调 */
+.zw-card-hover:hover {
+  border-color: #DCD3BC !important;
+  box-shadow: 0 6px 20px rgba(30, 42, 50, 0.07);
+  transform: translateY(-1px);
+}
+.zw-card-hover:active { transform: translateY(0); }
+
+/* 现代版侧栏交互：悬停只提背景，不位移，避免导航晃动 */
+.zw-nav-item:hover { background: rgba(255,255,255,0.72); }
+.zw-search:focus-within { border-color: #D8C895 !important; box-shadow: 0 0 0 3px rgba(184,146,42,0.075); }
+.zw-settings-btn:hover { border-color: #DCD3BC !important; box-shadow: 0 2px 10px -6px rgba(30,42,50,0.3); }
+.zw-btn-primary:hover { filter: brightness(1.06); }
+
+/* ── 排盘页（暗色）交互 ──
+   暗底上不能靠阴影分层，只能靠提亮：宫位悬停整块亮一档，选中由页面给金边。 */
+.zw-palace:hover { filter: brightness(1.12); }
+.zw-palace:active { filter: brightness(1.04); }
+.zw-palette-btn:hover { filter: brightness(1.18); }
+
+/* ── 排盘页 · 典雅神秘那一层 ──
+   只做三件小事：星野（极淡的点阵）、玻璃（右侧信息卡）、金线微光（悬停/选中）。
+   全部走 --zw-* 变量，亮底皮肤下自动变成「纸上的金线」，不会变成一片黑。 */
+.zw-starfield {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--zw-gold) 26%, transparent) 0.9px,
+    transparent 1.1px
+  );
+  background-size: 26px 26px;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.zw-glass {
+  background: color-mix(in srgb, var(--zw-card) 78%, transparent);
+  backdrop-filter: blur(10px) saturate(1.05);
+  -webkit-backdrop-filter: blur(10px) saturate(1.05);
+  border: 1px solid color-mix(in srgb, var(--zw-gold) 16%, var(--zw-line));
+  transition: border-color .2s ease, background .2s ease;
+}
+.zw-glass:hover { border-color: color-mix(in srgb, var(--zw-gold) 30%, var(--zw-line)); }
+
+.zw-ghost-btn {
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+.zw-ghost-btn:hover {
+  background: color-mix(in srgb, var(--zw-gold) 9%, transparent);
+  border-color: color-mix(in srgb, var(--zw-gold) 42%, var(--zw-line)) !important;
+  color: var(--zw-ink) !important;
+}
+
+.zw-gold-btn {
+  transition: filter .18s ease, box-shadow .18s ease;
+  box-shadow: 0 10px 30px -16px color-mix(in srgb, var(--zw-gold) 70%, transparent);
+}
+.zw-gold-btn:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 14px 38px -16px color-mix(in srgb, var(--zw-gold) 85%, transparent);
+}
+
+/* 宫格：选中时的金色呼吸，不做位移动画，免得盘面抖 */
+@keyframes zw-breathe {
+  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--zw-gold) 26%, transparent), 0 0 26px -18px var(--zw-gold); }
+  50%      { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--zw-gold) 42%, transparent), 0 0 40px -14px var(--zw-gold); }
+}
+.zw-palace-active { animation: zw-breathe 4.2s ease-in-out infinite; }
+
+/* 表单输入：无填充，只给一条发丝线；聚焦时线转金 —— 不要系统默认的方框 */.zw-field { transition: border-color .16s ease, box-shadow .16s ease; }
+.zw-field:hover { border-color: color-mix(in srgb, var(--zw-gold) 35%, var(--zw-line)); }
+.zw-field:focus {
+  border-color: color-mix(in srgb, var(--zw-gold) 65%, var(--zw-line)) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--zw-gold) 11%, transparent);
+}
+/* 下拉：去掉系统那支灰三角，换一根金线箭头 */
+.zw-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%23B8922A' stroke-width='1.2' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px !important;
+}
+
+/* ── 最小宽度 ──
+   桌面端窗口收窄时，宁可出横向滚动条，也不要把 4×4 盘面挤成一团。
+   768px 以下仍走移动端那一套（顶部条 + 横向导航），不受这条约束。 */
+@media (min-width: 768px) {
+  .zw-shell-row { min-width: 1040px; }
+  .zw-chart-cols { min-width: 1176px; }
+}
+
+/* 暗色表单：输入框与下拉不要冒系统白底 */
+.zw-dark-form input,
+.zw-dark-form select {
+  color-scheme: dark;
+}
+.zw-dark-form select option {
+  background: #161B20;
+  color: #E9E2D2;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   研习区皮肤（--zw-*）—— 六套：二亮四暗
+
+   为什么走 CSS 变量而不是 JS 主题对象：
+   知识库、古籍、讲义这些页是静态导出（SSG）出来的 HTML，服务端拿不到
+   localStorage。主题只能在客户端切，那就必须是 CSS 变量，样式字符串里留
+   var() 占位，浏览器按当前 data-skin 解析。
+
+   取材原则（四暗共用）：底不用纯黑，用「墨」——带一点青或一点褐；
+   字不用纯白，用「宣」——暖米白，久看不刺眼；金只做线与点，不做面。
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 一、纸宣（亮，默认）── */
+:root,
+[data-skin="zhixuan"] {
+  --zw-paper: #FAF7F0;
+  --zw-paper-deep: #F4EFE2;
+  --zw-card: #FFFFFF;
+  --zw-panel: #FFFDF8;
+  --zw-panel-alt: #F6F1E5;
+  --zw-line: #E7E1D3;
+  --zw-ink: #1E2A32;
+  --zw-ink2: #4A5A64;
+  --zw-ink3: #66757F;
+  --zw-gold: #B8922A;
+  --zw-navy: #22455C;
+  --zw-cinnabar: #A6432B;
+  --zw-seal: #A6432B;
+  --zw-lu: #2F7A55;
+  --zw-quan: #A8622A;
+  --zw-ke: #3F6390;
+  --zw-ji: #A3402B;
+  --zw-tint-ming: rgba(184,146,42,0.075);
+  --zw-tint-sanfang: rgba(34,69,92,0.055);
+  --zw-tint-kong: rgba(30,42,50,0.03);
+  --zw-tint-sha: rgba(166,67,43,0.05);
+  --zw-tint-daxian: rgba(184,146,42,0.05);
+  --zw-shadow-card: 0 1px 2px rgba(30,42,50,0.04), 0 10px 30px -24px rgba(30,42,50,0.30);
+  --zw-shadow-float: 0 2px 8px rgba(30,42,50,0.05), 0 18px 40px -26px rgba(30,42,50,0.34);
+  --zw-hover: rgba(255,255,255,0.72);
+  --zw-sheen: radial-gradient(1200px 600px at 78% -10%, rgba(184,146,42,0.07), transparent 70%);
+  --zw-scheme: light;
+  /* 旧落地页的底色也跟上，避免 html 层留一条亮边 */
+  --bg-0: #FAF7F0;
+  --bg-1: #F4EFE2;
+  --bg-card: #FFFFFF;
+  --tx-1: #1E2A32;
+}
+
+/* ── 二、绢沙（亮，暖）── */
+[data-skin="juansha"] {
+  --zw-paper: #F3E9D7;
+  --zw-paper-deep: #EBDFC8;
+  --zw-card: #FCF6E9;
+  --zw-panel: #FEF9EF;
+  --zw-panel-alt: #F0E5D0;
+  --zw-line: #DFD2B7;
+  --zw-ink: #241C15;
+  --zw-ink2: #584839;
+  --zw-ink3: #77664F;
+  --zw-gold: #A8802F;
+  --zw-navy: #35504B;
+  --zw-cinnabar: #A2402B;
+  --zw-seal: #A2402B;
+  --zw-lu: #2F7350;
+  --zw-quan: #A65E22;
+  --zw-ke: #3A6288;
+  --zw-ji: #9F3B28;
+  --zw-tint-ming: rgba(168,128,47,0.09);
+  --zw-tint-sanfang: rgba(53,80,75,0.06);
+  --zw-tint-kong: rgba(36,28,21,0.035);
+  --zw-tint-sha: rgba(162,64,43,0.055);
+  --zw-tint-daxian: rgba(168,128,47,0.06);
+  --zw-shadow-card: 0 1px 2px rgba(70,52,30,0.05), 0 10px 30px -24px rgba(70,52,30,0.32);
+  --zw-shadow-float: 0 2px 8px rgba(70,52,30,0.06), 0 18px 40px -26px rgba(70,52,30,0.36);
+  --zw-hover: rgba(255,252,244,0.66);
+  --zw-sheen: radial-gradient(1200px 600px at 78% -10%, rgba(168,128,47,0.10), transparent 70%);
+  --zw-scheme: light;
+  --bg-0: #F3E9D7;
+  --bg-1: #EBDFC8;
+  --bg-card: #FCF6E9;
+  --tx-1: #241C15;
+}
+
+/* ── 三、玄墨（暗，正统）── */
+[data-skin="xuanmo"] {
+  --zw-paper: #0E1114;
+  --zw-paper-deep: #0A0D10;
+  --zw-card: #141A1F;
+  --zw-panel: #161B20;
+  --zw-panel-alt: #12171B;
+  --zw-line: #28313A;
+  --zw-ink: #E9E2D2;
+  --zw-ink2: #AAB3BA;
+  --zw-ink3: #8C99A4;
+  --zw-gold: #C6A15B;
+  --zw-navy: #7C93A8;
+  --zw-cinnabar: #B5543F;
+  --zw-seal: #B5543F;
+  --zw-lu: #7FA86B;
+  --zw-quan: #C08A47;
+  --zw-ke: #7E9FC0;
+  --zw-ji: #B5543F;
+  --zw-tint-ming: rgba(198,161,91,0.085);
+  --zw-tint-sanfang: rgba(124,147,168,0.045);
+  --zw-tint-kong: rgba(0,0,0,0.20);
+  --zw-tint-sha: rgba(181,84,63,0.045);
+  --zw-tint-daxian: rgba(198,161,91,0.07);
+  --zw-shadow-card: 0 1px 0 rgba(255,255,255,0.03) inset, 0 20px 40px -30px rgba(0,0,0,0.9);
+  --zw-shadow-float: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -34px rgba(0,0,0,0.95);
+  --zw-hover: rgba(255,255,255,0.045);
+  --zw-sheen: radial-gradient(1200px 620px at 76% -12%, rgba(198,161,91,0.10), transparent 72%);
+  --zw-scheme: dark;
+  --bg-0: #0E1114;
+  --bg-1: #12171B;
+  --bg-card: #141A1F;
+  --tx-1: #E9E2D2;
+}
+
+/* ── 四、石青（暗，冷）── */
+[data-skin="shiqing"] {
+  --zw-paper: #0C191F;
+  --zw-paper-deep: #081216;
+  --zw-card: #122029;
+  --zw-panel: #14252E;
+  --zw-panel-alt: #101E26;
+  --zw-line: #22404C;
+  --zw-ink: #E4EAE6;
+  --zw-ink2: #A2B2B6;
+  --zw-ink3: #8AA6AE;
+  --zw-gold: #CBB27A;
+  --zw-navy: #5FA0AE;
+  --zw-cinnabar: #B85C46;
+  --zw-seal: #B85C46;
+  --zw-lu: #6FAE86;
+  --zw-quan: #C89A54;
+  --zw-ke: #79A9CC;
+  --zw-ji: #B85C46;
+  --zw-tint-ming: rgba(203,178,122,0.085);
+  --zw-tint-sanfang: rgba(95,160,174,0.075);
+  --zw-tint-kong: rgba(0,0,0,0.20);
+  --zw-tint-sha: rgba(184,92,70,0.045);
+  --zw-tint-daxian: rgba(203,178,122,0.07);
+  --zw-shadow-card: 0 1px 0 rgba(255,255,255,0.035) inset, 0 20px 40px -30px rgba(0,0,0,0.9);
+  --zw-shadow-float: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -34px rgba(0,0,0,0.95);
+  --zw-hover: rgba(255,255,255,0.05);
+  --zw-sheen: radial-gradient(1200px 620px at 76% -12%, rgba(95,160,174,0.12), transparent 72%);
+  --zw-scheme: dark;
+  --bg-0: #0C191F;
+  --bg-1: #101E26;
+  --bg-card: #122029;
+  --tx-1: #E4EAE6;
+}
+
+/* ── 五、绛紫（暗，贵）── */
+[data-skin="jiangzi"] {
+  --zw-paper: #140F17;
+  --zw-paper-deep: #0E0A11;
+  --zw-card: #1B1420;
+  --zw-panel: #1E1624;
+  --zw-panel-alt: #181021;
+  --zw-line: #332541;
+  --zw-ink: #EDE3DE;
+  --zw-ink2: #B3A6B0;
+  --zw-ink3: #9C8CA2;
+  --zw-gold: #C9A469;
+  --zw-navy: #9678AC;
+  --zw-cinnabar: #B0544A;
+  --zw-seal: #B0544A;
+  --zw-lu: #86A873;
+  --zw-quan: #C99B5C;
+  --zw-ke: #8E9BC8;
+  --zw-ji: #B0544A;
+  --zw-tint-ming: rgba(201,164,105,0.085);
+  --zw-tint-sanfang: rgba(150,120,172,0.075);
+  --zw-tint-kong: rgba(0,0,0,0.20);
+  --zw-tint-sha: rgba(176,84,74,0.045);
+  --zw-tint-daxian: rgba(201,164,105,0.07);
+  --zw-shadow-card: 0 1px 0 rgba(255,255,255,0.035) inset, 0 20px 40px -30px rgba(0,0,0,0.9);
+  --zw-shadow-float: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -34px rgba(0,0,0,0.95);
+  --zw-hover: rgba(255,255,255,0.05);
+  --zw-sheen: radial-gradient(1200px 620px at 76% -12%, rgba(150,120,172,0.075), transparent 72%);
+  --zw-scheme: dark;
+  --bg-0: #140F17;
+  --bg-1: #181021;
+  --bg-card: #1B1420;
+  --tx-1: #EDE3DE;
+}
+
+/* ── 六、松烟（暗，沉）── */
+[data-skin="songyan"] {
+  --zw-paper: #0D1411;
+  --zw-paper-deep: #080D0B;
+  --zw-card: #131D19;
+  --zw-panel: #15211C;
+  --zw-panel-alt: #111B17;
+  --zw-line: #243529;
+  --zw-ink: #E6E7DE;
+  --zw-ink2: #A7B0A4;
+  --zw-ink3: #8C9C91;
+  --zw-gold: #B99A5E;
+  --zw-navy: #7C9C80;
+  --zw-cinnabar: #AC5B45;
+  --zw-seal: #AC5B45;
+  --zw-lu: #7FA86B;
+  --zw-quan: #C09255;
+  --zw-ke: #8296B0;
+  --zw-ji: #AC5B45;
+  --zw-tint-ming: rgba(185,154,94,0.085);
+  --zw-tint-sanfang: rgba(124,156,128,0.075);
+  --zw-tint-kong: rgba(0,0,0,0.20);
+  --zw-tint-sha: rgba(172,91,69,0.045);
+  --zw-tint-daxian: rgba(185,154,94,0.07);
+  --zw-shadow-card: 0 1px 0 rgba(255,255,255,0.035) inset, 0 20px 40px -30px rgba(0,0,0,0.9);
+  --zw-shadow-float: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -34px rgba(0,0,0,0.95);
+  --zw-hover: rgba(255,255,255,0.05);
+  --zw-sheen: radial-gradient(1200px 620px at 76% -12%, rgba(124,156,128,0.12), transparent 72%);
+  --zw-scheme: dark;
+  --bg-0: #0D1411;
+  --bg-1: #111B17;
+  --bg-card: #131D19;
+  --tx-1: #E6E7DE;
+}
+
+/* 主题相关的原生控件：暗色皮肤下让 select / 滚动条也沉下去 */
+[data-skin="xuanmo"] select,
+[data-skin="xuanmo"] input,
+[data-skin="shiqing"] select,
+[data-skin="shiqing"] input,
+[data-skin="jiangzi"] select,
+[data-skin="jiangzi"] input,
+[data-skin="songyan"] select,
+[data-skin="songyan"] input { color-scheme: dark; }
+
+/* 皮肤下的通用交互：亮底提白、暗底提亮，都是「只改背景不位移」 */
+.zw-nav-item:hover { background: var(--zw-hover) !important; }
+.zw-settings-btn:hover {
+  border-color: color-mix(in srgb, var(--zw-gold) 45%, var(--zw-line)) !important;
+  box-shadow: 0 2px 10px -6px rgba(0,0,0,0.35);
+}
+.zw-search:focus-within {
+  border-color: color-mix(in srgb, var(--zw-gold) 55%, var(--zw-line)) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--zw-gold) 14%, transparent);
+}
+.zw-card-hover:hover {
+  border-color: color-mix(in srgb, var(--zw-gold) 40%, var(--zw-line)) !important;
+  box-shadow: var(--zw-shadow-float);
+  transform: translateY(-1px);
+}
+.zw-palace:hover { filter: brightness(1.10); }
+.zw-palace:active { filter: brightness(1.03); }
+
+/* 皮肤切换的过渡：只过渡颜色，不过渡尺寸，免得布局抖动 */
+html { background: var(--bg-0); transition: background-color .22s ease; }
+body { transition: background-color .22s ease, color .22s ease; }
+
+/* 检索高亮：<mark> 在暗皮上默认是刺眼的荧光黄，改成随皮肤走的金色底 */
+mark {
+  background: color-mix(in srgb, var(--zw-gold) 26%, transparent);
+  color: var(--zw-ink);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* ── 全站统一交互层（2026-11）────────────────────────────
+   焦点、悬停、禁用只在这里定义一次：页面与共用组件都不再各写一套。
+   焦点环走金色，键盘可见、鼠标不打扰（:focus-visible）。 */
+*:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--zw-gold) 72%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 列表行：悬停只提一点点背景，不位移 */
+.zw-row:hover { background: color-mix(in srgb, var(--zw-gold) 7%, transparent); }
+.zw-row:active { background: color-mix(in srgb, var(--zw-gold) 11%, transparent); }
+
+/* 按钮：次级按钮悬停由「描边变金」承接，主按钮只提亮一档 */
+.zw-btn { transition: background .15s ease, border-color .15s ease, filter .15s ease; }
+.zw-btn:hover { border-color: color-mix(in srgb, var(--zw-gold) 42%, var(--zw-line)); }
+.zw-btn:disabled { cursor: not-allowed; }
+.zw-btn[data-variant="primary"]:hover { filter: brightness(1.08); }
+
+/* 页码/选项：选中用金色底 + 金边，和「命宫」那种标记区分（那用朱砂） */
+.zw-chip:hover { border-color: color-mix(in srgb, var(--zw-gold) 42%, var(--zw-line)); }
+
+/* 正文基线：界面默认字体、字号、行高，页面不再重复声明 */
+body {
+  font-family: "Noto Sans SC", "Microsoft YaHei UI", "微软雅黑", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 长文阅读区：限制行宽，避免宽屏下一行跑到 40 字以上 */
+.zw-prose { max-width: 38em; }
+.zw-prose p { margin: 0 0 1em; }
