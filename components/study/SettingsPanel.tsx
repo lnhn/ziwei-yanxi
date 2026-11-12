@@ -22,7 +22,8 @@ import {
   type AiConfig, type AiProviderId,
 } from '@/lib/study/ai-config';
 import { PAPER_COLORS as C } from '@/components/study/paper';
-import { FONT, T } from '@/components/study/type';
+import { FONT, T, TRACK } from '@/components/study/type';
+import { DENSITIES, clearSavedDensity, readSavedDensity, resolveDensity, saveDensity, type DensityId } from '@/components/study/density';
 import { SKINS } from '@/components/study/themes';
 import { useSkin } from '@/components/study/skin-context';
 import {
@@ -550,6 +551,25 @@ export const SETTINGS_TITLE_SIZE = T.h2;
  */
 function AppearanceSection() {
   const { skinId, setSkinId } = useSkin();
+  const [density, setDensity] = useState<DensityId>('standard');
+  const [auto, setAuto] = useState(true);
+
+  // 首帧之后同步：读手动值 / 按环境猜（桌面版高 DPI 走「舒展」）
+  useEffect(() => {
+    setDensity(resolveDensity());
+    setAuto(readSavedDensity() === null);
+  }, []);
+
+  function pickDensity(id: DensityId) {
+    setDensity(id);
+    saveDensity(id);
+    setAuto(false);
+  }
+
+  function followAuto() {
+    setDensity(clearSavedDensity());
+    setAuto(true);
+  }
 
   return (
     <div>
@@ -603,6 +623,62 @@ function AppearanceSection() {
             </button>
           );
         })}
+      </div>
+
+      <div style={{
+        marginTop: 20, paddingTop: 16, borderTop: `1px solid ${C.line}`,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 11, flexWrap: 'wrap' }}>
+          <span style={{ fontFamily: FONT.display, fontSize: T.h3, color: C.ink, letterSpacing: TRACK.title }}>字号密度</span>
+          <span style={{ fontSize: T.micro, color: C.ink3, letterSpacing: '0.02em' }}>
+            只改字号与行高，版式宽度不动 —— 换档不会让宫格重排
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10 }}>
+          {DENSITIES.map((d) => {
+            const on = d.id === density;
+            return (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => pickDensity(d.id)}
+                style={{
+                  textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
+                  padding: '11px 13px 12px', borderRadius: 8,
+                  background: on ? C.card : 'transparent',
+                  border: `1px solid ${on ? C.gold : C.line}`,
+                  boxShadow: on ? `0 0 0 3px color-mix(in srgb, ${C.gold} 14%, transparent)` : 'none',
+                  transition: 'border-color .15s ease, box-shadow .15s ease',
+                }}
+              >
+                <span style={{
+                  display: 'block', fontFamily: FONT.sans, fontSize: T.nav, color: on ? C.ink : C.ink2,
+                  letterSpacing: '0.04em',
+                }}>{d.label}{on ? ' · 当前' : ''}</span>
+                <span style={{ display: 'block', marginTop: 5, fontSize: T.meta, color: C.ink3, lineHeight: 1.7 }}>
+                  {d.note}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 11, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={followAuto}
+            className="zw-btn"
+            style={{
+              fontFamily: 'inherit', cursor: 'pointer', padding: '6px 12px', borderRadius: 8,
+              background: 'transparent', color: auto ? C.ink : C.ink2,
+              border: `1px solid ${auto ? C.gold : C.line}`, fontSize: T.micro, letterSpacing: '0.02em',
+            }}
+          >跟随系统缩放{auto ? ' · 当前' : ''}</button>
+          <span style={{ fontSize: T.micro, color: C.ink3 }}>
+            桌面版在 125% 以上缩放默认「舒展」，网页版默认「标准」；手动选过就一直用它。
+          </span>
+        </div>
       </div>
 
       <div style={{

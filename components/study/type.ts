@@ -7,9 +7,21 @@
  *   日期、时辰、大限区间用等宽数字（NUMERIC）。
  *   字体只列系统自带或本机已确认存在的家族，不外链网络字体 —— 离线桌面版同样成立。
  *   （本机已核对：华文中宋 / 华文宋体 / 华文楷体 / 微软雅黑 / Noto Sans SC 均在。）
+ *
+ * 2026-11-12 字号密度：
+ *   每档字号都写成 `var(--fs-*, 基准px)`，基准值只作回退。六个档位的实际值由
+ *   app/globals.css 里的 `html[data-density]` 三组变量决定（紧凑 / 标准 / 舒展），
+ *   所以调密度不用改任何页面代码，也不会让版式宽度跟着变。
+ *   盘面宫格里的字号是 ChartBoardDark 里写死的，故意不跟随 —— 盘面比例不能动。
  */
 
 import type { CSSProperties } from 'react';
+
+/**
+ * 字号取值：优先取 CSS 变量（密度由此切换），变量缺失时回退到基准 px。
+ * 用函数的唯一目的，是让「这是一个可调档位」这件事在代码里能看出来。
+ */
+const fs = (key: string, base: number) => `var(--fs-${key}, ${base}px)`;
 
 export const FONT = {
   /** 界面、表单、导航、正文 —— 屏幕小字靠它保可读 */
@@ -24,21 +36,21 @@ export const FONT = {
   mono: '"Cascadia Mono","Consolas","JetBrains Mono",ui-monospace,monospace',
 } as const;
 
-/** 字号阶梯（px）。只在档位上取值，不出现 11.5 / 13.5 这类碎尺寸。 */
+/** 字号阶梯（标准密度下的 px 基准）。只在档位上取值，不出现 11.5 / 13.5 这类碎尺寸。 */
 export const T = {
-  hero: 34,      // 首页主视觉、盘心标题
-  display: 27,   // 页标题（24–28）
-  h1: 22,        // 页内大节
-  h2: 19,        // 分节标题（18–20）
-  h3: 16,        // 小标题
-  bodyLg: 16,    // 强调正文
-  body: 15,      // 常规正文（14–16）
-  nav: 14,       // 导航与表单
-  sub: 13,       // 次要信息（12–13）
-  meta: 12.5,    // 元信息
-  micro: 12,     // 标签、角标
-  eyebrow: 12,   // 眉标
-  serif: 17,     // 古籍正文（16–18）
+  hero: fs('hero', 34),        // 首页主视觉、盘心标题
+  display: fs('display', 27),  // 页标题（24–28）
+  h1: fs('h1', 22),            // 页内大节
+  h2: fs('h2', 19),            // 分节标题（18–20）
+  h3: fs('h3', 16),            // 小标题
+  bodyLg: fs('bodyLg', 16),    // 强调正文
+  body: fs('body', 15),        // 常规正文（14–16）
+  nav: fs('nav', 14),          // 导航与表单
+  sub: fs('sub', 13),          // 次要信息（12–13）
+  meta: fs('meta', 12.5),      // 元信息
+  micro: fs('micro', 12),      // 标签、角标
+  eyebrow: fs('eyebrow', 12),  // 眉标
+  serif: fs('serif', 17),      // 古籍正文（16–18）
 } as const;
 
 /** 字距：只允许这几档，避免每页各写一个 */
@@ -50,10 +62,10 @@ export const TRACK = {
   eyebrow: '0.2em',
 } as const;
 
-/** 行高：阅读给宽，界面收紧 */
+/** 行高：阅读给宽，界面收紧（同样由密度微调，见 globals.css 的 --lh-ui / --lh-reading） */
 export const LH = {
-  reading: 1.85,
-  ui: 1.8,
+  reading: 'var(--lh-reading, 1.85)',
+  ui: 'var(--lh-ui, 1.8)',
   tight: 1.5,
 } as const;
 

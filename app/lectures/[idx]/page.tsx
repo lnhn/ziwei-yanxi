@@ -104,7 +104,7 @@ export default async function LecturePage({ params }: { params: Promise<{ idx: s
                     {cs.ziweiPos && <span style={{ fontSize: T.sub, color: C.ink2 }}>紫微在{cs.ziweiPos}</span>}
                     {cs.mingGong && <span style={{ fontSize: T.sub, color: C.ink2 }}>命宫在{cs.mingGong}</span>}
                   </div>
-                  <div style={{ fontFamily: FONT.serif, fontSize: T.serif - 1, color: C.ink2, lineHeight: 1.9, marginTop: 6 }}>
+                  <div style={{ fontFamily: FONT.serif, fontSize: T.bodyLg, color: C.ink2, lineHeight: 1.9, marginTop: 6 }}>
                     {cs.raw}
                   </div>
                 </Card>

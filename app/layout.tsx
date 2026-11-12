@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import DensityBoot from '@/components/study/DensityBoot';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_URL } from '@/lib/site';
@@ -45,10 +46,20 @@ var s=localStorage.getItem('zw.skin.v1');
 var dark=(s==='xuanmo'||s==='shiqing'||s==='jiangzi'||s==='songyan');
 document.documentElement.setAttribute('data-skin',s||'xuanmo');
 document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+// 字号密度：URL 上的 ?density= 只用于对照截图与分享，优先且不落盘；
+// 其次是手动选过的值；都没有就按环境猜（桌面版 + 高 DPI → 舒展）
+var q=(location.search.match(/[?&]density=(compact|standard|loose)\b/)||[])[1];
+var d=q||localStorage.getItem('zw.density.v1');
+if(d!=='compact'&&d!=='standard'&&d!=='loose'){
+  var tauri=!!(window.__TAURI_INTERNALS__||window.__TAURI__);
+  d=(tauri&&(window.devicePixelRatio||1)>=1.25)?'loose':'standard';
+}
+document.documentElement.setAttribute('data-density',d);
 }catch(e){}})();` }} />
       </head>
       <body className="min-h-screen">
         <ThemeProvider>
+          <DensityBoot />
           {children}
         </ThemeProvider>
         <Analytics />

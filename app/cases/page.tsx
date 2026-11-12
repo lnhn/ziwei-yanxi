@@ -69,7 +69,7 @@ export default function CasesPage() {
                       {(!cs.year || !cs.gender) && <span style={{ fontSize: T.micro, color: C.cinnabar }}>原文缺项</span>}
                     </div>
                     <div style={{
-                      fontFamily: FONT.serif, fontSize: T.serif - 1, color: C.ink2, lineHeight: 1.8, marginTop: 6,
+                      fontFamily: FONT.serif, fontSize: T.bodyLg, color: C.ink2, lineHeight: 1.8, marginTop: 6,
                     }}>
                       {cs.raw}
                     </div>

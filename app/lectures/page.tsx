@@ -71,7 +71,7 @@ export default function LecturesPage() {
                     )}
                   </div>
                   <div style={{
-                    fontFamily: FONT.serif, fontSize: T.serif - 2, color: C.ink2, lineHeight: 1.75,
+                    fontFamily: FONT.serif, fontSize: T.body, color: C.ink2, lineHeight: 1.75,
                     display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden',
                   }}>{first}</div>
                   <div style={{ display: 'flex', gap: 10, marginTop: 10, fontSize: T.micro, color: C.ink3, flexWrap: 'wrap' }}>
