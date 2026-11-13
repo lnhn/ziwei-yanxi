@@ -21,6 +21,29 @@ export interface BirthFormState {
   gender: 'male' | 'female';
 }
 
+/**
+ * 字段错误提示：必须定义在模块级。
+ * 写在组件体内时每次重渲染都会生成新的组件类型，React 视作换了组件，把下面的
+ * input / select 拆掉重挂 —— 表现就是「敲一个字就失焦」。
+ */
+function FieldError({ msg, color }: { msg: string; color: string }) {
+  return (
+    <AnimatePresence>
+      {msg && (
+        <motion.p
+          initial={{ opacity: 0, y: -4, height: 0 }}
+          animate={{ opacity: 1, y: 0, height: 'auto' }}
+          exit={{ opacity: 0, y: -4, height: 0 }}
+          transition={{ duration: 0.18 }}
+          style={{ color, fontSize: '11px', marginTop: '4px' }}
+        >
+          ✕ {msg}
+        </motion.p>
+      )}
+    </AnimatePresence>
+  );
+}
+
 interface BirthFormProps {
   onSubmit: (info: BirthInfo) => void;
   loading?: boolean;
@@ -174,24 +197,6 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   const errorInputStyle = { ...inputStyle, borderColor: errorClr };
 
-  function FieldError({ msg }: { msg: string }) {
-    return (
-      <AnimatePresence>
-        {msg && (
-          <motion.p
-            initial={{ opacity: 0, y: -4, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -4, height: 0 }}
-            transition={{ duration: 0.18 }}
-            style={{ color: errorClr, fontSize: '11px', marginTop: '4px' }}
-          >
-            ✕ {msg}
-          </motion.p>
-        )}
-      </AnimatePresence>
-    );
-  }
-
   const showErr = (field: string) => touched[field] || submitAttempted;
 
   return (
@@ -249,7 +254,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
                 <option key={yr} value={String(yr)}>{yr}</option>
               ))}
             </select>
-            <FieldError msg={showErr('year') ? errors.year : ''} />
+            <FieldError color={errorClr} msg={showErr('year') ? errors.year : ''} />
           </div>
           <div>
             <select
@@ -263,7 +268,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
                 <option key={mo} value={String(mo)}>{mo} 月</option>
               ))}
             </select>
-            <FieldError msg={showErr('month') ? errors.month : ''} />
+            <FieldError color={errorClr} msg={showErr('month') ? errors.month : ''} />
           </div>
           <div>
             <select
@@ -277,7 +282,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
                 <option key={dy} value={String(dy)}>{dy} 日</option>
               ))}
             </select>
-            <FieldError msg={showErr('day') ? errors.day : ''} />
+            <FieldError color={errorClr} msg={showErr('day') ? errors.day : ''} />
           </div>
         </div>
       </div>

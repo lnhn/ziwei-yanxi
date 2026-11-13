@@ -27,8 +27,21 @@ type FormColors = {
   accent: string;
 };
 
-export default function LightBirthForm({
-  onSubmit,
+/**
+ * 字段外壳：必须定义在模块级。
+ * 之前它写成了组件内的局部函数，每次 setForm 重渲染都产生一个新的组件类型，
+ * React 认不出是同一个，于是把 input 拆了重挂 —— 表现就是「敲一个字就失焦」。
+ */
+function Labeled({ label, color, children }: { label: string; color: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div style={{ fontSize: 11.5, color, letterSpacing: '0.16em', marginBottom: 7 }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+
+export default function LightBirthForm({  onSubmit,
   tone,
 }: {
   onSubmit: (info: BirthInfo) => void;
@@ -71,16 +84,6 @@ export default function LightBirthForm({
     onSubmit(formToBirthInfo(form));
   }
 
-  // 放在组件内，才能拿到外面传进来的配色（原来是模块级常量，颜色锁死）
-  function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
-    return (
-      <div>
-        <div style={{ fontSize: 11.5, color: C.ink3, letterSpacing: '0.16em', marginBottom: 7 }}>{label}</div>
-        {children}
-      </div>
-    );
-  }
-
   return (
     <div style={{
       background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: '22px 24px',
@@ -95,22 +98,22 @@ export default function LightBirthForm({
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12 }}>
-        <Labeled label="公历年">
+        <Labeled color={C.ink3} label="公历年">
           <input value={form.year} onChange={(e) => set('year', e.target.value)} className="zw-field" style={inputStyle} />
         </Labeled>
-        <Labeled label="月">
+        <Labeled color={C.ink3} label="月">
           <input value={form.month} onChange={(e) => set('month', e.target.value)} className="zw-field" style={inputStyle} />
         </Labeled>
-        <Labeled label="日">
+        <Labeled color={C.ink3} label="日">
           <input value={form.day} onChange={(e) => set('day', e.target.value)} className="zw-field" style={inputStyle} />
         </Labeled>
-        <Labeled label="时（0–23）">
+        <Labeled color={C.ink3} label="时（0–23）">
           <input value={form.clockHour} onChange={(e) => set('clockHour', e.target.value)} className="zw-field" style={inputStyle} />
         </Labeled>
-        <Labeled label="分">
+        <Labeled color={C.ink3} label="分">
           <input value={form.clockMinute} onChange={(e) => set('clockMinute', e.target.value)} className="zw-field" style={inputStyle} />
         </Labeled>
-        <Labeled label="性别">
+        <Labeled color={C.ink3} label="性别">
           <div style={{ display: 'flex', gap: 6 }}>
             {(['male', 'female'] as const).map((g) => (
               <button
@@ -133,7 +136,7 @@ export default function LightBirthForm({
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
-        <Labeled label="出生省">
+        <Labeled color={C.ink3} label="出生省">
           <select
             value={form.province}
             onChange={(e) => {
@@ -150,7 +153,7 @@ export default function LightBirthForm({
             {PROVINCES.map((p) => <option key={p.name} value={p.name}>{p.name}</option>)}
           </select>
         </Labeled>
-        <Labeled label="出生市（用于真太阳时校正）">
+        <Labeled color={C.ink3} label="出生市（用于真太阳时校正）">
           <select
             value={form.city}
             onChange={(e) => {
